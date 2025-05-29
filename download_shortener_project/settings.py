@@ -31,9 +31,9 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = True
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS = ['127.0.0.1','localhost','cdn.nzdworld.com']
 
 # Application definition
 
@@ -86,8 +86,8 @@ DATABASES = {
         'NAME': config('DB_NAME'),        # <--- MODIFY THIS
         'USER': config('DB_USER'),        # <--- MODIFY THIS
         'PASSWORD': config('DB_PASSWORD'), # <--- MODIFY THIS
-        'HOST': config('DB_HOST', default='localhost'), # <--- MODIFY THIS, default to localhost
-        'PORT': config('DB_PORT', default='3306', cast=int), # <--- MODIFY THIS, default to 3306
+        'HOST': 'localhost', # <--- MODIFY THIS, default to localhost
+        'PORT': '3306',
     }
 }
 
