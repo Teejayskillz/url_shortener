@@ -11,10 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-import os
+import os 
 from decouple import config
 import pymysql
 pymysql.install_as_MySQLdb()
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,17 +26,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# IMPORTANT: For production, DEBUG should be False.
-# You can control this via an environment variable in cPanel or your .env file.
-DEBUG = config('DEBUG', default=False, cast=bool)
+#DEBUG = True
+DEBUG = True
 
-
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',') # Load from env, e.g., '127.0.0.1,localhost,cdn.nzdworld.com'
+ALLOWED_HOSTS = ['127.0.0.1','localhost','cdn.nzdworld.com']
 
 # Application definition
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -78,14 +79,15 @@ WSGI_APPLICATION = 'download_shortener_project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='3306'),
+        'NAME': config('DB_NAME'),        # <--- MODIFY THIS
+        'USER': config('DB_USER'),        # <--- MODIFY THIS
+        'PASSWORD': config('DB_PASSWORD'), # <--- MODIFY THIS
+        'HOST': 'localhost', # <--- MODIFY THIS, default to localhost
+        'PORT': '3306',
     }
 }
 
@@ -118,18 +120,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-
-# STATICFILES_DIRS is for *additional* source directories.
-# If you have project-level static files (e.g., in 'my_url_shortener_project/static/'),
-# keep the following line. If you only use static files from your apps (like Django admin),
-# you can leave this list empty to avoid the warning.
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'), # This assumes your custom static files are in 'my_url_shortener_project/static/'
+    os.path.join(BASE_DIR, 'static'),
+
 ]
-
-# STATIC_ROOT is the *destination* where 'collectstatic' puts all files.
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # This creates a folder named 'staticfiles' at your project root
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
