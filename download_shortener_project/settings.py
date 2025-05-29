@@ -29,8 +29,8 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost,cdn.nzdworld.com').split(',')
 
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(',')
 
 # Application definition
 
@@ -80,25 +80,15 @@ WSGI_APPLICATION = 'download_shortener_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'shortener_db',      # Replace with the name of your MySQL database
-        'USER': 'shortener_db',        # Replace with your MySQL username (e.g., 'root')
-        'PASSWORD': 'Tijania32000',# Replace with your MySQL password
-        'HOST': '127.0.0.1',              # Or the IP address/hostname of your MySQL server
-        'PORT': '3306',                   # Default MySQL port, change if yours is different
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        }
+        'NAME': config('DB_NAME'),        # <--- MODIFY THIS
+        'USER': config('DB_USER'),        # <--- MODIFY THIS
+        'PASSWORD': config('DB_PASSWORD'), # <--- MODIFY THIS
+        'HOST': config('DB_HOST', default='localhost'), # <--- MODIFY THIS, default to localhost
+        'PORT': config('DB_PORT', default='3306', cast=int), # <--- MODIFY THIS, default to 3306
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
@@ -127,6 +117,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # This creates a folder named 'staticfiles' at your project root
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
