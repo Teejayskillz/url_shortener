@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os 
 from decouple import config
+import pymysql
+pymysql.install_as_MySQLdb()
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -79,7 +82,7 @@ WSGI_APPLICATION = 'download_shortener_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.mysql.base',
         'NAME': config('DB_NAME'),        # <--- MODIFY THIS
         'USER': config('DB_USER'),        # <--- MODIFY THIS
         'PASSWORD': config('DB_PASSWORD'), # <--- MODIFY THIS
