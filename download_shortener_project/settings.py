@@ -12,9 +12,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
-from decouple import config # Make sure 'python-decouple' is in your requirements.txt
-import pymysql # Make sure 'PyMySQL' is in your requirements.txt
-pymysql.install_as_MySQLdb() # This line ensures Django uses PyMySQL for MySQLdb compatibility
+from decouple import config
+import pymysql
+pymysql.install_as_MySQLdb()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,20 +25,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY') # Loaded from .env or cPanel environment variables
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# Use config() for DEBUG to control it via environment variables (e.g., in .env or cPanel)
-DEBUG = config('DEBUG', default=False, cast=bool) # Set default to False for safety in production
+# IMPORTANT: For production, DEBUG should be False.
+# You can control this via an environment variable in cPanel or your .env file.
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-# ALLOWED_HOSTS for production.
-# This should be a comma-separated list in your .env or cPanel environment variable.
-# Example .env: ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com,cdn.nzdworld.com
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',') # Load from env, e.g., '127.0.0.1,localhost,cdn.nzdworld.com'
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -64,11 +61,10 @@ ROOT_URLCONF = 'download_shortener_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')], # Assuming you have a 'templates' folder at project root
-        'APP_DIRS': True, # This allows Django to find templates within each app's 'templates' directory
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'django.template.context_processors.debug', # Often useful for local development, remove or comment in production
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -85,17 +81,13 @@ WSGI_APPLICATION = 'download_shortener_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME'),         # Loaded from .env or cPanel env var
-        'USER': config('DB_USER'),         # Loaded from .env or cPanel env var
-        'PASSWORD': config('DB_PASSWORD'),  # Loaded from .env or cPanel env var
-        'HOST': config('DB_HOST', default='localhost'), # Loaded from .env or cPanel env var, default to localhost
-        'PORT': config('DB_PORT', default='3306'), # Loaded from .env or cPanel env var, default to 3306
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST', default='localhost'),
+        'PORT': config('DB_PORT', default='3306'),
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -127,16 +119,15 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# STATICFILES_DIRS is for additional *source* directories for static files (e.g., project-wide assets).
-# The warning you saw indicates '/home/hypeblog/cdn.nzdworld.com/static' does not exist as a source.
-# If you don't have project-specific static files outside of your apps, this can be an empty list.
-# If you *do* have such files (e.g., in 'my_url_shortener_project/static/'), then it should point there.
+# STATICFILES_DIRS is for *additional* source directories.
+# If you have project-level static files (e.g., in 'my_url_shortener_project/static/'),
+# keep the following line. If you only use static files from your apps (like Django admin),
+# you can leave this list empty to avoid the warning.
 STATICFILES_DIRS = [
-    # os.path.join(BASE_DIR, 'static'), # Uncomment this if you have a 'static' folder directly at your project root
+    os.path.join(BASE_DIR, 'static'), # This assumes your custom static files are in 'my_url_shortener_project/static/'
 ]
 
-# STATIC_ROOT is the *destination* directory where 'collectstatic' gathers all static files for production.
-# This is the directory your web server (Apache/Nginx via cPanel) serves from.
+# STATIC_ROOT is the *destination* where 'collectstatic' puts all files.
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
