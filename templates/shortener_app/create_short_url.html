@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django URL Shortener</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* A bit more modern font */
+            margin: 0; /* Remove default margin */
+            padding: 20px;
+            background-color: #eef2f7; /* Lighter, subtle background */
+            color: #333;
+            display: flex; /* Use flexbox for centering */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Full viewport height */
+            box-sizing: border-box; /* Include padding in element's total width and height */
+        }
+        .container {
+            max-width: 600px;
+            width: 100%; /* Ensure it takes full width up to max-width */
+            margin: auto; /* Center horizontally */
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 12px; /* Slightly more rounded corners */
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15); /* More pronounced shadow */
+            box-sizing: border-box;
+        }
+        h1 {
+            color: #2c3e50; /* Darker heading for contrast */
+            text-align: center;
+            margin-bottom: 35px; /* More space below heading */
+            font-size: 2.2em; /* Slightly larger heading */
+            font-weight: 600; /* Medium bold */
+        }
+        form p {
+            margin-bottom: 25px; /* More space between form field and button */
+            text-align: center; /* Center the form field within its paragraph */
+        }
+        input[type="url"] {
+            width: 100%; /* Full width */
+            padding: 15px; /* More padding */
+            border: 1px solid #c0d0e0; /* Softer border color */
+            border-radius: 8px; /* More rounded input fields */
+            box-sizing: border-box;
+            font-size: 1.1em; /* Larger font in input */
+            outline: none; /* Remove default outline */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition on focus */
+        }
+        input[type="url"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25); /* Focus glow */
+        }
+        button {
+            padding: 15px 25px; /* More padding */
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px; /* More rounded button */
+            cursor: pointer;
+            font-size: 1.15em; /* Slightly larger button text */
+            font-weight: 600; /* Medium bold */
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Add transform for subtle click effect */
+            display: block;
+            width: 100%;
+            letter-spacing: 0.5px; /* A little spacing for readability */
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px); /* Lift button slightly on hover */
+        }
+        button:active {
+            transform: translateY(0); /* Press down effect */
+            background-color: #004085;
+        }
+        .shortened-link {
+            margin-top: 40px; /* More space above the result */
+            padding: 25px; /* More padding for result box */
+            background-color: #e6f7ff; /* Lighter blue for success */
+            border: 1px solid #b3e0ff; /* Blue border */
+            border-radius: 10px;
+            text-align: center;
+        }
+        .shortened-link p {
+            margin-bottom: 12px;
+            font-weight: 600; /* Slightly bolder */
+            color: #0056b3; /* Darker blue for text */
+            font-size: 1.1em;
+        }
+        .shortened-link a {
+            word-break: break-all;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 1.25em; /* Larger link text */
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+        .shortened-link a:hover {
+            color: #0056b3; /* Darker blue on hover */
+            text-decoration: underline;
+        }
+        .shortened-link .share-message {
+            margin-top: 15px;
+            font-size: 0.95em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Shorten Your Download URL</h1>
+        <form method="post">
+            {% csrf_token %} {# Django's security token for forms #}
+            {{ form.as_p }} {# Renders form fields as paragraphs #}
+            <button type="submit">Shorten URL</button>
+        </form>
+
+        {% if shortened_url %}
+            <div class="shortened-link">
+                <p>Your Shortened URL:</p>
+                <a href="{{ shortened_url }}" target="_blank">{{ shortened_url }}</a>
+                <p class="share-message">Share this link for your timed download page.</p> {# Added class for specific styling #}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
