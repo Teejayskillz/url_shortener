@@ -1,0 +1,1 @@
+WSGI_APPLICATION = 'download_shortener_project.wsgi.application'
