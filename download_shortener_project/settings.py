@@ -82,7 +82,7 @@ WSGI_APPLICATION = 'download_shortener_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql.base',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': config('DB_NAME'),        # <--- MODIFY THIS
         'USER': config('DB_USER'),        # <--- MODIFY THIS
         'PASSWORD': config('DB_PASSWORD'), # <--- MODIFY THIS
