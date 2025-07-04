@@ -33,7 +33,7 @@ SECRET_KEY = config('SECRET_KEY')
 #DEBUG = True
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost','cdn.nzdworld.com', 'cdn.hypeblog9jatv.com']
+ALLOWED_HOSTS = ['127.0.0.1','localhost','cdn.nzdworld.com', 'cdn.hypeblog9jatv.com.ng']
 
 # Application definition
 
