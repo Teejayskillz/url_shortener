@@ -9,8 +9,25 @@ def create_short_url(request):
         form = URLShortenForm(request.POST)
         if form.is_valid():
             long_url = form.cleaned_data['long_url']
-            # Try to get an existing URL object or create a new one
-            url_obj, created = URL.objects.get_or_create(long_url=long_url)
+            entered_url_title = form.cleaned_data['url_title'] # Get the title from the form
+
+            # Option to handle existing URLs:
+            # 1. Try to get an existing URL with the same long_url
+            # 2. If found, update its title if the new title is different
+            # 3. If not found, create a new URL object with both long_url and url_title
+
+            url_obj, created = URL.objects.get_or_create(
+                long_url=long_url,
+                defaults={'url_title': entered_url_title} # Set url_title if a new object is created
+            )
+            
+            if not created and url_obj.url_title != entered_url_title:
+                # If an existing URL was found and the new title is different, update it.
+                # This ensures the most recent title submitted via the form is used.
+                url_obj.url_title = entered_url_title
+                url_obj.save()
+
+
             # Construct the full shortened URL for display
             # request.build_absolute_uri('/') gives you the base URL of your site (e.g., http://127.0.0.1:8000/)
             shortened_url = request.build_absolute_uri('/') + url_obj.short_code
@@ -28,6 +45,11 @@ def redirect_to_download(request, short_code):
         url_obj.clicks += 1
         url_obj.save()
 
+        # Retrieve url_title directly from the fetched url_obj
+        # Use .url_title if it exists, otherwise provide a default or fallback
+        # Changed default to "Your Download" for more general use, but "Your Movie" is fine if context is always movies.
+        download_title = url_obj.url_title if url_obj.url_title else "Your Download" 
+
         site_config, created = SiteConfiguration.objects.get_or_create(pk=1)
         
         # Initialize active_ads
@@ -36,7 +58,6 @@ def redirect_to_download(request, short_code):
         # Only fetch and pass ads if global ads are enabled
         if site_config.ads_enabled_globally:
             # Fetch all active ad units, ordered by their location
-            # We'll group them by location in the template
             ad_units = AdUnit.objects.filter(is_active=True).order_by('location')
             
             # Organize ads by their location for easier template access
@@ -48,12 +69,18 @@ def redirect_to_download(request, short_code):
         context = {
             'original_download_url': url_obj.long_url,
             'short_code': short_code,
+            'url_title': download_title,  # This will now correctly show the input title
             'ads_enabled': site_config.ads_enabled_globally, # Global switch
             'active_ads': active_ads, # Pass active ad units organized by location
         }
         return render(request, 'shortener_app/waiting_page.html', context)
     except Http404:
-        return HttpResponse("Short URL not found.", status=404)
+        # This will be caught by get_object_or_404, but it's good to be explicit
+        raise Http404("Short URL not found.") # Or render a custom 404 page
+    except Exception as e:
+        # Log unexpected errors for debugging
+        print(f"An unexpected error occurred: {e}")
+        return HttpResponse("An internal server error occurred.", status=500)
 
 
 def finalize_download(request, short_code):
@@ -62,6 +89,7 @@ def finalize_download(request, short_code):
        
         return redirect(url_obj.long_url)
     except Http404:
-        return HttpResponse("Short URL not found.", status=404)
-    
-    
+        raise Http404("Short URL not found.") # Or render a custom 404 page
+    except Exception as e:
+        print(f"An unexpected error occurred during finalization: {e}")
+        return HttpResponse("An internal server error occurred.", status=500)

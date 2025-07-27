@@ -11,6 +11,7 @@ def generate_short_code():
             return short_code
 
 class URL(models.Model):
+    url_title = models.CharField(max_length=600 , blank=True , null=True)
     long_url = models.URLField(max_length=2000)
     short_code = models.CharField(max_length=6, unique=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

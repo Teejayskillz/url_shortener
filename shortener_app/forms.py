@@ -2,6 +2,11 @@
 from django import forms
 
 class URLShortenForm(forms.Form):
+    url_title = forms.CharField(
+        label="Enter URL Title",
+        max_length=600,
+        widget=forms.TextInput(attrs={'placeholder': 'e.g., Download M3gan (2025) Movie'})
+    )
     long_url = forms.URLField(
         label="Enter Long URL",
         max_length=2000,
