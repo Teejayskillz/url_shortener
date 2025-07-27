@@ -48,7 +48,7 @@ def redirect_to_download(request, short_code):
         # Retrieve url_title directly from the fetched url_obj
         # Use .url_title if it exists, otherwise provide a default or fallback
         # Changed default to "Your Download" for more general use, but "Your Movie" is fine if context is always movies.
-        download_title = url_obj.url_title if url_obj.url_title else "Your Download" 
+        download_title = url_obj.url_title if url_obj.url_title else "GENERATE DOWNLOAD LINK BELOW" 
 
         site_config, created = SiteConfiguration.objects.get_or_create(pk=1)
         
