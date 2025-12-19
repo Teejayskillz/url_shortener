@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views # Import views from the current app
+from .views import api_shorten
 
 urlpatterns = [ # <--- Ensure this is a list []
     # URL for the homepage where users shorten links
@@ -10,4 +11,6 @@ urlpatterns = [ # <--- Ensure this is a list []
 
     # URL for the final redirect after the timer: e.g., http://127.0.0.1:8000/download/abcdef/finalize/
     path('download/<str:short_code>/finalize/', views.finalize_download, name='finalize_download'),
-] 
+    path("api/shorten/", api_shorten, name="api_shorten"),
+]
+

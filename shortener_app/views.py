@@ -3,6 +3,41 @@ from django.http import HttpResponse, Http404
 from .models import URL, SiteConfiguration, AdUnit # Ensure all models are imported
 from .forms import URLShortenForm
 
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .models import URL
+
+
+@csrf_exempt
+def api_shorten(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST only"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+        long_url = data.get("url")
+        title = data.get("title")
+
+        if not long_url:
+            return JsonResponse({"error": "URL required"}, status=400)
+
+        obj, created = URL.objects.get_or_create(
+            long_url=long_url,
+            defaults={"url_title": title}
+        )
+
+        return JsonResponse({
+            "short_code": obj.short_code,
+            "short_url": f"https://dl.jaraflix.com/{obj.short_code}"
+        })
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+
+
 def create_short_url(request):
     shortened_url = None # Initialize variable to hold the shortened URL
     if request.method == 'POST':
