@@ -17,7 +17,7 @@ def ad_free_vip_required(view_func):
     """
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
-        token = request.GET.get('token')
+        token = request.GET.get('token') or request.GET.get('vip_token')
         is_vip = False
         vip_user_id = None
 
@@ -25,8 +25,8 @@ def ad_free_vip_required(view_func):
             secret_key = getattr(settings, 'CDN_SHARED_SECRET', getattr(settings, 'SECRET_KEY', ''))
             signer = TimestampSigner(key=secret_key)
             try:
-                # Unsign token enforcing a 5-minute (300 seconds) expiration window
-                vip_user_id = signer.unsign(token, max_age=300)
+                # Unsign token allowing a 30-minute (1800 seconds) validity window for mobile usability
+                vip_user_id = signer.unsign(token, max_age=1800)
                 is_vip = True
             except (BadSignature, SignatureExpired):
                 is_vip = False
@@ -35,5 +35,6 @@ def ad_free_vip_required(view_func):
         request.is_vip_ad_free = is_vip
         request.vip_user_id = vip_user_id
         return view_func(request, *args, **kwargs)
+
 
     return _wrapped_view
