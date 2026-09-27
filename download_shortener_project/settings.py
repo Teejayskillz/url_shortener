@@ -29,6 +29,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY')
 
+# Shared secret key for verifying VIP download tokens from main blog site
+CDN_SHARED_SECRET = config('CDN_SHARED_SECRET', default=os.getenv('CDN_SHARED_SECRET', SECRET_KEY))
+
+# Main Blog URL for SEO backlinks & return navigation
+MAIN_BLOG_URL = config('MAIN_BLOG_URL', default='https://nzdworld.com')
+
+
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
 DEBUG = True
@@ -80,16 +87,26 @@ WSGI_APPLICATION = 'download_shortener_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': config('DB_NAME'),        # <--- MODIFY THIS
-        'USER': config('DB_USER'),        # <--- MODIFY THIS
-        'PASSWORD': config('DB_PASSWORD'), # <--- MODIFY THIS
-        'HOST': 'localhost', # <--- MODIFY THIS, default to localhost
-        'PORT': '3306',
+import sys
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db_test.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': config('DB_NAME'),        # <--- MODIFY THIS
+            'USER': config('DB_USER'),        # <--- MODIFY THIS
+            'PASSWORD': config('DB_PASSWORD'), # <--- MODIFY THIS
+            'HOST': config('DB_HOST', default='localhost'), # <--- MODIFY THIS, default to localhost
+            'PORT': config('DB_PORT', default='3306'),
+        }
+    }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

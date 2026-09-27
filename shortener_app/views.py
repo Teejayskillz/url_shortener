@@ -38,6 +38,10 @@ def api_shorten(request):
 
 
 
+from django.conf import settings
+from .decorators import ad_free_vip_required
+
+
 def create_short_url(request):
     shortened_url = None # Initialize variable to hold the shortened URL
     if request.method == 'POST':
@@ -74,6 +78,8 @@ def create_short_url(request):
     # Render the initial page or the page with the shortened URL
     return render(request, 'shortener_app/create_short_url.html', {'form': form})
 
+
+@ad_free_vip_required
 def redirect_to_download(request, short_code):
     try:
         url_obj = get_object_or_404(URL, short_code=short_code)
@@ -81,17 +87,19 @@ def redirect_to_download(request, short_code):
         url_obj.save()
 
         # Retrieve url_title directly from the fetched url_obj
-        # Use .url_title if it exists, otherwise provide a default or fallback
-        # Changed default to "Your Download" for more general use, but "Your Movie" is fine if context is always movies.
         download_title = url_obj.url_title if url_obj.url_title else "GENERATE DOWNLOAD LINK BELOW 👇👇👇" 
 
         site_config, created = SiteConfiguration.objects.get_or_create(pk=1)
         
+        # Check if user has valid VIP ad-free token
+        is_vip_ad_free = getattr(request, 'is_vip_ad_free', False)
+        vip_user_id = getattr(request, 'vip_user_id', None)
+
         # Initialize active_ads
         active_ads = {}
 
-        # Only fetch and pass ads if global ads are enabled
-        if site_config.ads_enabled_globally:
+        # Only fetch and pass ads if global ads are enabled AND user is NOT VIP
+        if site_config.ads_enabled_globally and not is_vip_ad_free:
             # Fetch all active ad units, ordered by their location
             ad_units = AdUnit.objects.filter(is_active=True).order_by('location')
             
@@ -104,27 +112,31 @@ def redirect_to_download(request, short_code):
         context = {
             'original_download_url': url_obj.long_url,
             'short_code': short_code,
-            'url_title': download_title,  # This will now correctly show the input title
-            'ads_enabled': site_config.ads_enabled_globally, # Global switch
-            'active_ads': active_ads, # Pass active ad units organized by location
+            'url_title': download_title,
+            'ads_enabled': site_config.ads_enabled_globally and not is_vip_ad_free, # Global switch overridden by VIP status
+            'active_ads': active_ads, # Pass active ad units (empty if VIP)
+            'is_vip_ad_free': is_vip_ad_free, # VIP status boolean
+            'vip_user_id': vip_user_id, # VIP User ID
+            'main_blog_url': getattr(settings, 'MAIN_BLOG_URL', 'https://nzdworld.com'), # Main blog URL for SEO links
+            'token': request.GET.get('token', ''),
         }
         return render(request, 'shortener_app/waiting_page.html', context)
     except Http404:
-        # This will be caught by get_object_or_404, but it's good to be explicit
-        raise Http404("Short URL not found.") # Or render a custom 404 page
+        raise Http404("Short URL not found.")
     except Exception as e:
-        # Log unexpected errors for debugging
-        print(f"An unexpected error occurred: {e}")
+        import traceback
+        traceback.print_exc()
         return HttpResponse("An internal server error occurred.", status=500)
 
 
+
+@ad_free_vip_required
 def finalize_download(request, short_code):
     try:
         url_obj = get_object_or_404(URL, short_code=short_code)
-       
         return redirect(url_obj.long_url)
     except Http404:
-        raise Http404("Short URL not found.") # Or render a custom 404 page
+        raise Http404("Short URL not found.")
     except Exception as e:
         print(f"An unexpected error occurred during finalization: {e}")
-        return HttpResponse("An internal server error occurred.", status=500)
+        return HttpResponse("An internal server error occurred.", status=500)
