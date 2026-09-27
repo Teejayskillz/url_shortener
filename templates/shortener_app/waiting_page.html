@@ -175,20 +175,30 @@
     {% endif %}
 
     <script>
+        // Force refresh if restored from Mobile Safari / Chrome BFCache
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                window.location.reload();
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             const downloadButton = document.getElementById('downloadButton');
             const shortCode = "{{ short_code }}";
             const token = "{{ token }}";
 
-            downloadButton.addEventListener('click', function() {
-                let redirectUrl = `/download/${shortCode}/finalize/`;
-                if (token) {
-                    redirectUrl += `?token=${encodeURIComponent(token)}`;
-                }
-                window.location.href = redirectUrl;
-            });
+            if (downloadButton) {
+                downloadButton.addEventListener('click', function() {
+                    let redirectUrl = `/download/${shortCode}/finalize/`;
+                    if (token) {
+                        redirectUrl += `?token=${encodeURIComponent(token)}`;
+                    }
+                    window.location.href = redirectUrl;
+                });
+            }
         });
     </script>
+
 
 </body>
 </html>

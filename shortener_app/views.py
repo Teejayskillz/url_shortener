@@ -10,6 +10,11 @@ import json
 from .models import URL
 
 
+from django.views.decorators.cache import never_cache
+from django.conf import settings
+from .decorators import ad_free_vip_required
+
+
 @csrf_exempt
 def api_shorten(request):
     if request.method != "POST":
@@ -30,16 +35,12 @@ def api_shorten(request):
 
         return JsonResponse({
             "short_code": obj.short_code,
-            "short_url": f"https://dl.jaraflix.com/{obj.short_code}"
+            "short_url": f"https://dl.jaraflix.com/{obj.short_code}/"
         })
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
 
-
-
-from django.conf import settings
-from .decorators import ad_free_vip_required
 
 
 def create_short_url(request):
@@ -79,6 +80,7 @@ def create_short_url(request):
     return render(request, 'shortener_app/create_short_url.html', {'form': form})
 
 
+@never_cache
 @ad_free_vip_required
 def redirect_to_download(request, short_code):
     try:
@@ -120,7 +122,11 @@ def redirect_to_download(request, short_code):
             'main_blog_url': getattr(settings, 'MAIN_BLOG_URL', 'https://nzdworld.com'), # Main blog URL for SEO links
             'token': request.GET.get('token', ''),
         }
-        return render(request, 'shortener_app/waiting_page.html', context)
+        response = render(request, 'shortener_app/waiting_page.html', context)
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0, private'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
     except Http404:
         raise Http404("Short URL not found.")
     except Exception as e:
@@ -129,14 +135,19 @@ def redirect_to_download(request, short_code):
         return HttpResponse("An internal server error occurred.", status=500)
 
 
-
+@never_cache
 @ad_free_vip_required
 def finalize_download(request, short_code):
     try:
         url_obj = get_object_or_404(URL, short_code=short_code)
-        return redirect(url_obj.long_url)
+        response = redirect(url_obj.long_url)
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0, private'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
     except Http404:
         raise Http404("Short URL not found.")
     except Exception as e:
         print(f"An unexpected error occurred during finalization: {e}")
-        return HttpResponse("An internal server error occurred.", status=500)
+        return HttpResponse("An internal server error occurred.", status=500)
+
