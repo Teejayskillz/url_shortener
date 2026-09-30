@@ -84,7 +84,8 @@ def create_short_url(request):
 @ad_free_vip_required
 def redirect_to_download(request, short_code):
     try:
-        url_obj = get_object_or_404(URL, short_code=short_code)
+        clean_short_code = short_code.strip().rstrip('/').replace('%20', '')
+        url_obj = get_object_or_404(URL, short_code=clean_short_code)
         url_obj.clicks += 1
         url_obj.save()
 
@@ -113,7 +114,7 @@ def redirect_to_download(request, short_code):
 
         context = {
             'original_download_url': url_obj.long_url,
-            'short_code': short_code,
+            'short_code': clean_short_code,
             'url_title': download_title,
             'ads_enabled': site_config.ads_enabled_globally and not is_vip_ad_free, # Global switch overridden by VIP status
             'active_ads': active_ads, # Pass active ad units (empty if VIP)
@@ -139,7 +140,8 @@ def redirect_to_download(request, short_code):
 @ad_free_vip_required
 def finalize_download(request, short_code):
     try:
-        url_obj = get_object_or_404(URL, short_code=short_code)
+        clean_short_code = short_code.strip().rstrip('/').replace('%20', '')
+        url_obj = get_object_or_404(URL, short_code=clean_short_code)
         response = redirect(url_obj.long_url)
         response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0, private'
         response['Pragma'] = 'no-cache'
