@@ -40,7 +40,7 @@ MAIN_BLOG_URL = config('MAIN_BLOG_URL', default='https://nzdworld.com')
 #DEBUG = True
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost','cdn.nzdworld.com', 'cdn.hypeblog9jatv.com.ng', 'dl.jaraflix.com']
+ALLOWED_HOSTS = ['127.0.0.1','localhost','cdn.nzdworld.com', 'cdn.hypeblog9jatv.com.ng', 'dl.jaraflix.com','watchmoi.com','www.watchmoi.com']
 
 # Application definition
 
